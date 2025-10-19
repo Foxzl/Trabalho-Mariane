@@ -26,24 +26,51 @@ function RegisterPage({ onGoToLogin }) {
     setCpf(value);
   };
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    if (cpf.length < 14 || name === '' || email === '' || password === '' || confirmPassword === '') {
-      setError('Preencha todos os campos corretamente.');
-      setSuccess('');
-    } else if (password !== confirmPassword) {
-      setError('As senhas não conferem.');
+  const handleSubmit = async (e) => {
+  e.preventDefault();
+
+  if (cpf.length < 14 || name === '' || email === '' || password === '' || confirmPassword === '') {
+    setError('Preencha todos os campos corretamente.');
+    setSuccess('');
+    return;
+  }
+
+  if (password !== confirmPassword) {
+    setError('As senhas não conferem.');
+    setSuccess('');
+    return;
+  }
+
+  try {
+    const response = await fetch('http://localhost:3001/register', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ cpf, name, email, password }),
+    });
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      setError(data.error || 'Erro ao cadastrar.');
       setSuccess('');
     } else {
       setError('');
-      setSuccess('Cadastro realizado com sucesso!');
+      setSuccess(data.message);
       setCpf('');
       setName('');
       setEmail('');
       setPassword('');
       setConfirmPassword('');
+      setTimeout(() => {
+    onGoToLogin();
+  }, 2000);
     }
-  };
+  } catch (err) {
+    setError('Erro ao conectar com o servidor.');
+    setSuccess('');
+  }
+};
+
 
   return (
     <div className="login-bg">
@@ -98,9 +125,9 @@ function RegisterPage({ onGoToLogin }) {
         <div style={{position:'relative'}}>
           <input
             type={showPassword ? "text" : "password"}
-            placeholder="Senha"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
+            placeholder="Confirme sua senha"
+            value={confirmPassword}
+            onChange={(e) => setConfirmPassword(e.target.value)}
             className="login_cad_input"
             autoComplete="on"
             style={{paddingRight:'100px'}}
