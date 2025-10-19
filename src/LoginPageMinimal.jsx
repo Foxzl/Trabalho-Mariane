@@ -15,15 +15,33 @@ function LoginPageMinimal({ onGoToRegister }) {
     setCpf(value);
   };
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    if (cpf.length < 14 || password === '') {
-      setError('Preencha todos os campos corretamente.');
-    } else {
-      setError('');
-      alert('Login realizado com sucesso!');
-    }
-  };
+    const handleSubmit = async (e) => {
+        e.preventDefault();
+
+        if (cpf.length < 14 || password === '') {
+            setError('Preencha todos os campos corretamente.');
+            return;
+        }
+
+        try {
+            const response = await fetch('http://localhost:3001/login', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ cpf, password }),
+            });
+
+            const data = await response.json();
+
+            if (!response.ok) {
+                setError(data.error || 'Erro no login.');
+            } else {
+                setError('');
+                alert('Login realizado com sucesso!');
+            }
+        } catch (err) {
+            setError('Erro ao conectar com o servidor.');
+        }
+    };
 
   return (
     <div className="login-bg">

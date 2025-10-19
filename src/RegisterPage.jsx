@@ -26,51 +26,24 @@ function RegisterPage({ onGoToLogin }) {
     setCpf(value);
   };
 
-  const handleSubmit = async (e) => {
-  e.preventDefault();
-
-  if (cpf.length < 14 || name === '' || email === '' || password === '' || confirmPassword === '') {
-    setError('Preencha todos os campos corretamente.');
-    setSuccess('');
-    return;
-  }
-
-  if (password !== confirmPassword) {
-    setError('As senhas não conferem.');
-    setSuccess('');
-    return;
-  }
-
-  try {
-    const response = await fetch('http://localhost:3001/register', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ cpf, name, email, password }),
-    });
-
-    const data = await response.json();
-
-    if (!response.ok) {
-      setError(data.error || 'Erro ao cadastrar.');
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    if (cpf.length < 14 || name === '' || email === '' || password === '' || confirmPassword === '') {
+      setError('Preencha todos os campos corretamente.');
+      setSuccess('');
+    } else if (password !== confirmPassword) {
+      setError('As senhas não conferem.');
       setSuccess('');
     } else {
       setError('');
-      setSuccess(data.message);
+      setSuccess('Cadastro realizado com sucesso!');
       setCpf('');
       setName('');
       setEmail('');
       setPassword('');
       setConfirmPassword('');
-      setTimeout(() => {
-    onGoToLogin();
-  }, 2000);
     }
-  } catch (err) {
-    setError('Erro ao conectar com o servidor.');
-    setSuccess('');
-  }
-};
-
+  };
 
   return (
     <div className="login-bg">
